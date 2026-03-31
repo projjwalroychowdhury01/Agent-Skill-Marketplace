@@ -31,8 +31,8 @@ def validate_tool_consistency(skill_data: Dict[str, Any]) -> List[ErrorDetail]:
     if not isinstance(tools, list):
         return errors
 
-    name = skill_data.get("name", "").lower()
-    description = skill_data.get("description", "").lower()
+    name = (skill_data.get("name") or "").lower()
+    description = (skill_data.get("description") or "").lower()
     combined_text = f"{name} {description}"
 
     # Check if tool names are meaningful
@@ -74,9 +74,9 @@ def validate_function_tool_mismatch(skill_data: Dict[str, Any]) -> List[ErrorDet
     """Detect mismatch between function name/description and tools."""
     errors = []
 
-    name = skill_data.get("name", "").lower()
-    description = skill_data.get("description", "").lower()
-    tools = skill_data.get("tools_used", [])
+    name = (skill_data.get("name") or "").lower()
+    description = (skill_data.get("description") or "").lower()
+    tools = skill_data.get("tools_used") or []
 
     # If name suggests data transformation but no data processing tools
     if any(word in name for word in ["extract", "parse", "transform", "convert"]):
@@ -97,8 +97,8 @@ def validate_determinism(skill_data: Dict[str, Any]) -> List[WarningDetail]:
     """Flag non-deterministic behaviors."""
     warnings = []
 
-    description = skill_data.get("description", "").lower()
-    name = skill_data.get("name", "").lower()
+    description = (skill_data.get("description") or "").lower()
+    name = (skill_data.get("name") or "").lower()
     combined_text = f"{name} {description}"
 
     non_deterministic_keywords = [
@@ -129,8 +129,8 @@ def validate_external_dependencies(skill_data: Dict[str, Any]) -> List[WarningDe
     """Flag undefined external system dependencies."""
     warnings = []
 
-    description = skill_data.get("description", "").lower()
-    tools = skill_data.get("tools_used", [])
+    description = (skill_data.get("description") or "").lower()
+    tools = skill_data.get("tools_used") or []
 
     # If tools mention external services without documentation
     external_keywords = ["external", "third-party", "api", "web service"]

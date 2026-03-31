@@ -353,6 +353,32 @@ class TestDuplicateDetection:
         assert data["duplicate_detected"] is True
 
 
+class TestSearchAndRecommendations:
+    """Test ranking and recommendation endpoints."""
+
+    def test_search_skills(self):
+        response = client.get("/skills/search", params={"query": "json extraction", "page": 1, "size": 5})
+        assert response.status_code == 200
+        data = response.json()
+        assert data["query"] == "json extraction"
+        assert "results" in data
+        assert isinstance(data["results"], list)
+
+    def test_search_spam_detection(self):
+        response = client.get("/skills/search", params={"query": "foo foo foo foo foo foo", "page": 1, "size": 5})
+        assert response.status_code == 400
+
+    def test_skill_recommendations(self):
+        # use a known preloaded skill id from skill_catalog
+        known_id = "skill-001"
+        response = client.get(f"/skills/{known_id}/recommendations", params={"size": 3})
+        assert response.status_code == 200
+        data = response.json()
+        assert data["skill_id"] == known_id
+        assert "recommendations" in data
+        assert isinstance(data["recommendations"], list)
+
+
 class TestErrorHandling:
     """Test error handling."""
 

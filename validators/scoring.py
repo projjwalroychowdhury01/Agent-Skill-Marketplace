@@ -12,7 +12,7 @@ def score_description_quality(skill_data: Dict[str, Any]) -> int:
     score = 0
     max_score = 20
 
-    description = skill_data.get("description", "")
+    description = skill_data.get("description") or ""
     if not isinstance(description, str):
         return 0
 
@@ -43,7 +43,7 @@ def score_example_quality(skill_data: Dict[str, Any]) -> int:
     score = 0
     max_score = 15
 
-    examples = skill_data.get("examples", [])
+    examples = skill_data.get("examples") or []
     if not isinstance(examples, list):
         return 0
 
@@ -73,7 +73,7 @@ def score_tag_quality(skill_data: Dict[str, Any]) -> int:
     score = 0
     max_score = 10
 
-    tags = skill_data.get("tags", [])
+    tags = skill_data.get("tags") or []
     if not isinstance(tags, list):
         return 0
 
@@ -105,8 +105,8 @@ def score_schema_quality(skill_data: Dict[str, Any]) -> int:
     score = 0
     max_score = 10
 
-    input_schema = skill_data.get("input_schema", {})
-    output_schema = skill_data.get("output_schema", {})
+    input_schema = skill_data.get("input_schema") or {}
+    output_schema = skill_data.get("output_schema") or {}
 
     if not isinstance(input_schema, dict) or not isinstance(output_schema, dict):
         return 0
@@ -132,7 +132,7 @@ def score_naming_quality(skill_data: Dict[str, Any]) -> int:
     score = 0
     max_score = 10
 
-    name = skill_data.get("name", "")
+    name = skill_data.get("name") or ""
     if not isinstance(name, str):
         return 0
 
@@ -165,8 +165,8 @@ def score_consistency_quality(skill_data: Dict[str, Any]) -> int:
     max_score = 10
 
     # Points for coherent skill description
-    name = skill_data.get("name", "").lower()
-    description = skill_data.get("description", "").lower()
+    name = (skill_data.get("name") or "").lower()
+    description = (skill_data.get("description") or "").lower()
 
     # Check if name and description are related
     name_words = set(name.split())
@@ -177,18 +177,18 @@ def score_consistency_quality(skill_data: Dict[str, Any]) -> int:
         score += 3
 
     # Points for having tools defined
-    tools = skill_data.get("tools_used", [])
+    tools = skill_data.get("tools_used") or []
     if isinstance(tools, list) and len(tools) > 0:
         score += 3
 
     # Points for having examples
-    examples = skill_data.get("examples", [])
+    examples = skill_data.get("examples") or []
     if isinstance(examples, list) and len(examples) > 0:
         score += 2
 
     # Points for input/output difference (good transformation)
-    input_schema = skill_data.get("input_schema", {})
-    output_schema = skill_data.get("output_schema", {})
+    input_schema = skill_data.get("input_schema") or {}
+    output_schema = skill_data.get("output_schema") or {}
     if isinstance(input_schema, dict) and isinstance(output_schema, dict):
         if len(input_schema) > 0 and input_schema != output_schema:
             score += 2

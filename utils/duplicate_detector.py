@@ -16,9 +16,9 @@ def calculate_hash(data: Dict) -> str:
     """Calculate hash of skill structure (name, input_schema, output_schema)."""
     # Use name, input keys, and output keys for hash
     structure = {
-        "name": data.get("name", "").lower(),
-        "input_keys": sorted(data.get("input_schema", {}).keys()),
-        "output_keys": sorted(data.get("output_schema", {}).keys()),
+        "name": (data.get("name") or "").lower(),
+        "input_keys": sorted((data.get("input_schema") or {}).keys()),
+        "output_keys": sorted((data.get("output_schema") or {}).keys()),
     }
 
     import json
@@ -28,8 +28,8 @@ def calculate_hash(data: Dict) -> str:
 
 def calculate_similarity(skill1: Dict, skill2: Dict) -> float:
     """Calculate similarity score between two skills (0-1)."""
-    name1 = skill1.get("name", "").lower()
-    name2 = skill2.get("name", "").lower()
+    name1 = (skill1.get("name") or "").lower()
+    name2 = (skill2.get("name") or "").lower()
 
     # Exact name match
     if name1 == name2:
@@ -44,10 +44,10 @@ def calculate_similarity(skill1: Dict, skill2: Dict) -> float:
         name_score = 0
 
     # Schema similarity
-    input1_keys = set(skill1.get("input_schema", {}).keys())
-    input2_keys = set(skill2.get("input_schema", {}).keys())
-    output1_keys = set(skill1.get("output_schema", {}).keys())
-    output2_keys = set(skill2.get("output_schema", {}).keys())
+    input1_keys = set((skill1.get("input_schema") or {}).keys())
+    input2_keys = set((skill2.get("input_schema") or {}).keys())
+    output1_keys = set((skill1.get("output_schema") or {}).keys())
+    output2_keys = set((skill2.get("output_schema") or {}).keys())
 
     input_overlap = len(input1_keys & input2_keys) / len(input1_keys | input2_keys) if len(input1_keys | input2_keys) > 0 else 0
     output_overlap = len(output1_keys & output2_keys) / len(output1_keys | output2_keys) if len(output1_keys | output2_keys) > 0 else 0
