@@ -55,6 +55,8 @@ def normalize_strings(skill_data: Dict[str, Any]) -> Dict[str, Any]:
     for field in string_fields:
         if field in normalized and isinstance(normalized[field], str):
             normalized[field] = normalized[field].strip()
+        elif field in normalized and normalized[field] is None:
+            normalized[field] = ""
 
     return normalized
 
@@ -63,7 +65,8 @@ def normalize_tags(skill_data: Dict[str, Any]) -> Dict[str, Any]:
     """Lowercase, deduplicate, and normalize tag synonyms."""
     normalized = skill_data.copy()
 
-    if "tags" not in normalized or not isinstance(normalized["tags"], list):
+    if "tags" not in normalized or normalized["tags"] is None or not isinstance(normalized["tags"], list):
+        normalized["tags"] = []
         return normalized
 
     tags = normalized["tags"]
@@ -95,7 +98,8 @@ def normalize_examples(skill_data: Dict[str, Any]) -> Dict[str, Any]:
     """Ensure examples have consistent structure."""
     normalized = skill_data.copy()
 
-    if "examples" not in normalized or not isinstance(normalized["examples"], list):
+    if "examples" not in normalized or normalized["examples"] is None or not isinstance(normalized["examples"], list):
+        normalized["examples"] = []
         return normalized
 
     normalized_examples = []
@@ -111,14 +115,24 @@ def normalize_examples(skill_data: Dict[str, Any]) -> Dict[str, Any]:
     return normalized
 
 
+def normalize_tools_used(skill_data: Dict[str, Any]) -> Dict[str, Any]:
+    """Ensure tools_used is a list."""
+    normalized = skill_data.copy()
+
+    if "tools_used" not in normalized or normalized["tools_used"] is None or not isinstance(normalized["tools_used"], list):
+        normalized["tools_used"] = []
+
+    return normalized
+
+
 def normalize_schemas(skill_data: Dict[str, Any]) -> Dict[str, Any]:
     """Ensure schemas are well-formed."""
     normalized = skill_data.copy()
 
     # Schemas are already validated, just ensure they exist
-    if "input_schema" not in normalized:
+    if "input_schema" not in normalized or normalized["input_schema"] is None:
         normalized["input_schema"] = {}
-    if "output_schema" not in normalized:
+    if "output_schema" not in normalized or normalized["output_schema"] is None:
         normalized["output_schema"] = {}
 
     return normalized
@@ -173,4 +187,13 @@ def run_normalization(skill_data: Dict[str, Any]) -> Dict[str, Any]:
     normalized = normalize_examples(normalized)
     normalized = normalize_schemas(normalized)
     normalized = normalize_tools(normalized)
+
+    # Ensure required fields have defaults
+    if normalized.get("name") is None:
+        normalized["name"] = ""
+    if normalized.get("description") is None:
+        normalized["description"] = ""
+    if normalized.get("category") is None:
+        normalized["category"] = ""
+
     return normalized

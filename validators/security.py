@@ -9,6 +9,7 @@ from models import ErrorDetail, WarningDetail
 
 DANGEROUS_PATTERNS = [
     ("execute shell", "Shell execution vulnerability"),
+    ("executes shell", "Shell execution vulnerability"),
     ("run arbitrary code", "Code injection risk"),
     ("bypass security", "Security bypass attempt"),
     ("eval(", "Dynamic code evaluation"),
@@ -25,6 +26,18 @@ DANGEROUS_PATTERNS = [
 
 SUSPICIOUS_KEYWORDS = [
     "delete all",
+    "deletes all",
+    "drop table",
+    "truncate",
+    "destroy database",
+    "remove all users",
+    "unauthorized access",
+    "steal data",
+    "crack password",
+]
+SUSPICIOUS_KEYWORDS = [
+    "delete all",
+    "deletes all",
     "drop table",
     "truncate",
     "destroy database",
@@ -48,9 +61,9 @@ def scan_dangerous_patterns(skill_data: Dict[str, Any]) -> List[ErrorDetail]:
     """Scan for dangerous code patterns."""
     errors = []
 
-    description = skill_data.get("description", "").lower()
-    name = skill_data.get("name", "").lower()
-    tools = [t.lower() for t in skill_data.get("tools_used", [])]
+    description = (skill_data.get("description") or "").lower()
+    name = (skill_data.get("name") or "").lower()
+    tools = [t.lower() for t in (skill_data.get("tools_used") or [])]
 
     combined_text = f"{name} {description}" + " ".join(tools)
 
@@ -72,8 +85,8 @@ def scan_suspicious_intent(skill_data: Dict[str, Any]) -> List[ErrorDetail]:
     """Scan for suspicious/malicious intent."""
     errors = []
 
-    description = skill_data.get("description", "").lower()
-    name = skill_data.get("name", "").lower()
+    description = (skill_data.get("description") or "").lower()
+    name = (skill_data.get("name") or "").lower()
 
     combined_text = f"{name} {description}"
 
@@ -95,7 +108,7 @@ def check_safe_practices(skill_data: Dict[str, Any]) -> List[WarningDetail]:
     """Check if high-risk operations mention safety practices."""
     warnings = []
 
-    description = skill_data.get("description", "").lower()
+    description = (skill_data.get("description") or "").lower()
 
     # High-risk operations
     high_risk_keywords = [
@@ -127,7 +140,7 @@ def validate_schema_injection_risk(skill_data: Dict[str, Any]) -> List[WarningDe
     """Check for injection risks in schema design."""
     warnings = []
 
-    input_schema = skill_data.get("input_schema", {})
+    input_schema = skill_data.get("input_schema") or {}
     if not isinstance(input_schema, dict):
         return warnings
 

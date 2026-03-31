@@ -132,6 +132,43 @@ CONTROLLED_TAGS: Set[str] = {
     "formatting",
 }
 
+# Ranking and recommendation settings
+RANKING_WEIGHTS = {
+    "relevance": 0.30,
+    "quality": 0.25,
+    "popularity": 0.15,
+    "freshness": 0.15,
+    "completeness": 0.10,
+    "exploration": 0.05,
+}
+
+RANKING_THRESHOLDS = {
+    "min_relevance": 40,
+    "min_quality": 60,
+    "max_query_length": 200,
+}
+
+EXPLORATION_SETTINGS = {
+    "cold_start_threshold": 50,
+    "boost_factor": 20,
+    "decay_days": 30,
+}
+
+ANTI_SPAM_SETTINGS = {
+    "max_repeated_token_ratio": 0.75,
+    "keyword_stuffing_penalty": 0.5,
+}
+
+DIVERSITY_SETTINGS = {
+    "max_per_creator": 2,
+    "required_category_frac": 0.3,
+}
+
+CACHE_SETTINGS = {
+    "query_cache_size": 500,
+    "result_ttl_seconds": 120,
+}
+
 # Logging configuration
 LOGGING_CONFIG = {
     "version": 1,

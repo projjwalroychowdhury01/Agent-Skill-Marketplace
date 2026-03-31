@@ -8,7 +8,11 @@ from typing import Dict, Any
 import logging
 import uuid
 
-from models import SkillRequest, ValidationResponse, ErrorDetail, WarningDetail, ValidatedSkill, ScoreBreakdown
+from models import (
+    SkillRequest, ValidationResponse, ErrorDetail, WarningDetail, 
+    ValidatedSkill, ScoreBreakdown, IntelligenceEngineRequest, 
+    IntelligenceEngineResponse, FeedbackSignals
+)
 
 # Validators
 from validators.structural import run_structural_validation
@@ -17,6 +21,9 @@ from validators.consistency import run_consistency_validation
 from validators.security import run_security_validation
 from validators.normalization import run_normalization
 from validators.scoring import calculate_quality_score
+
+# Intelligence Engine
+from utils.intelligence_engine import run_intelligence_engine
 
 # Utilities
 from utils.tag_mapper import map_tags_to_vocabulary, is_tag_in_vocabulary
@@ -27,6 +34,7 @@ from utils.duplicate_detector import (
     check_near_duplicates,
 )
 from utils.url_validator import validate_source_url, validate_author_email
+from utils.ranking import search_skills, get_recommendations
 
 # Logging
 logging.basicConfig(level=logging.INFO)
@@ -163,7 +171,7 @@ async def validate_skill(skill_request: SkillRequest) -> ValidationResponse:
 
     # ============ STEP 10: TAG VALIDATION & NORMALIZATION ============
     logger.debug(f"[{request_id}] Step 10: Tag validation")
-    tags = skill_data.get("tags", [])
+    tags = skill_data.get("tags") or []
     if not isinstance(tags, list):
         all_errors.append(
             ErrorDetail(
@@ -208,7 +216,7 @@ async def validate_skill(skill_request: SkillRequest) -> ValidationResponse:
 
     # ============ STEP 11: TOOLS VALIDATION ============
     logger.debug(f"[{request_id}] Step 11: Tools validation")
-    tools = skill_data.get("tools_used", [])
+    tools = skill_data.get("tools_used") or []
     if isinstance(tools, list):
         if len(tools) == 0:
             all_warnings.append(
@@ -344,7 +352,7 @@ async def validate_skill(skill_request: SkillRequest) -> ValidationResponse:
         normalized_skill_data = run_normalization(skill_data)
 
         # Map tags
-        normalized_tags, tag_suggestions = map_tags_to_vocabulary(normalized_skill_data.get("tags", []))
+        normalized_tags, tag_suggestions = map_tags_to_vocabulary(normalized_skill_data.get("tags") or [])
         normalized_skill_data["tags"] = normalized_tags
 
         # Create normalized skill object
@@ -357,7 +365,16 @@ async def validate_skill(skill_request: SkillRequest) -> ValidationResponse:
         normalized_skill = None
 
     # Calculate quality score
-    score_breakdown, total_score = calculate_quality_score(skill_data)
+    try:
+        score_breakdown, total_score = calculate_quality_score(skill_data)
+    except Exception as e:
+        logger.error(f"[{request_id}] Scoring failed: {str(e)}")
+        score_breakdown = ScoreBreakdown()
+        total_score = 0
+
+    if score_breakdown is None:
+        score_breakdown = ScoreBreakdown()
+        total_score = 0
 
     # ============ DETERMINE FINAL STATUS ============
     logger.debug(f"[{request_id}] Determining final status")
@@ -399,6 +416,33 @@ async def health_check():
     return {"status": "healthy", "service": "Agent Skill Validator v3"}
 
 
+@app.get("/skills/search")
+async def search_skills_endpoint(query: str = "", page: int = 1, size: int = 10):
+    """Search skills ranking endpoint."""
+    try:
+        if not query or not query.strip():
+            # If no query, return all skills
+            return search_skills(query=" ", page=page, size=size)
+        return search_skills(query=query, page=page, size=size)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        logger.error(f"Search failed: {str(e)}")
+        raise HTTPException(status_code=500, detail="Search engine error")
+
+
+@app.get("/skills/{skill_id}/recommendations")
+async def skill_recommendations(skill_id: str, size: int = 10):
+    """Skill recommendation endpoint."""
+    try:
+        return get_recommendations(skill_id=skill_id, size=size)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        logger.error(f"Recommendations failed: {str(e)}")
+        raise HTTPException(status_code=500, detail="Recommendation engine error")
+
+
 @app.get("/")
 async def root():
     """Root endpoint."""
@@ -409,11 +453,25 @@ async def root():
         "endpoints": {
             "validate": "POST /validate-skill",
             "health": "GET /health",
+            "search": "GET /skills/search?query={query}",
+            "recommendations": "GET /skills/{skill_id}/recommendations",
+            "intelligence": "POST /intelligence-engine",
         },
     }
+
+@app.post("/intelligence-engine", response_model=IntelligenceEngineResponse)
+async def intelligence_engine_endpoint(request: IntelligenceEngineRequest) -> IntelligenceEngineResponse:
+    """
+    Post-Validation Phase: Canonicalization, Deduplication, and Soft Quality Handling.
+    """
+    try:
+        return run_intelligence_engine(request)
+    except Exception as e:
+        logger.error(f"Intelligence Engine Error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Intelligence engine processing failed: {str(e)}")
 
 
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="localhost", port=8000)

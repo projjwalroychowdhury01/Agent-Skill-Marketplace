@@ -67,7 +67,7 @@ def validate_description_quality(skill_data: Dict[str, Any]) -> List[ErrorDetail
         )
 
     # Check sentence count (max 3)
-    sentences = re.split(r'[.!?]+', skill_data["description"])
+    sentences = re.split(r'[.!?]+', desc)
     sentences = [s.strip() for s in sentences if s.strip()]
     if len(sentences) > 3:
         errors.append(
