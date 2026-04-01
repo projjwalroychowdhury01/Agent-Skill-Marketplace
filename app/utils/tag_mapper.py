@@ -71,26 +71,30 @@ def find_closest_match(tag: str, vocabulary: Dict[str, List[str]]) -> Tuple[str,
     return tag, 0.0
 
 
-def map_tags_to_vocabulary(tags: List[str]) -> Tuple[List[str], Dict[str, str]]:
-    """Map tags to controlled vocabulary. Returns normalized tags and suggestions."""
-    normalized_tags = []
-    suggestions = {}
+def normalize_tags(tags: List[str]) -> List[str]:
+    """
+    STRICT normalization:
+    - Maps to controlled vocabulary only
+    - Removes weak matches
+    - Enforces 3–6 tags rule
+    """
+    normalized = []
 
     for tag in tags:
         controlled_tag, confidence = find_closest_match(tag, CONTROLLED_VOCABULARY)
 
-        if confidence >= 0.5 and confidence < 1.0:
-            # Suggest but don't force
-            suggestions[tag] = controlled_tag
-            normalized_tags.append(tag)  # Keep original, user should approve
-        else:
-            # Use controlled tag if high confidence
-            normalized_tags.append(controlled_tag)
+        if confidence >= 0.6:
+            normalized.append(controlled_tag)
 
     # Deduplicate
-    normalized_tags = list(dict.fromkeys(normalized_tags))
+    normalized = list(dict.fromkeys(normalized))
 
-    return normalized_tags, suggestions
+    # Enforce guardrails
+    if len(normalized) < 3 or len(normalized) > 6:
+        raise ValueError("Tag count must be between 3 and 6 after normalization")
+
+    return normalized
+
 
 
 def is_tag_in_vocabulary(tag: str) -> bool:

@@ -48,7 +48,7 @@ SYNONYM_MAP = {
 }
 
 # Simple query caching with expiration
-_query_cache: Dict[str, Dict] = {}
+# _query_cache: Dict[str, Dict] = {}
 
 
 def sanitize_query(query: str) -> str:
@@ -267,23 +267,23 @@ def get_fallback_results(size: int = 10) -> List[Dict]:
     return skills_sorted[:size]
 
 
-def cache_set(query: str, value: Dict):
-    _query_cache[query] = {
-        "value": value,
-        "expires": datetime.utcnow() + timedelta(seconds=CACHE_SETTINGS["result_ttl_seconds"]),
-    }
+# def cache_set(query: str, value: Dict):
+#     _query_cache[query] = {
+#         "value": value,
+#         "expires": datetime.utcnow() + timedelta(seconds=CACHE_SETTINGS["result_ttl_seconds"]),
+#     }
 
 
-def cache_get(query: str) -> Optional[Dict]:
-    entry = _query_cache.get(query)
-    if not entry:
-        return None
+# def cache_get(query: str) -> Optional[Dict]:
+#     entry = _query_cache.get(query)
+#     if not entry:
+#         return None
 
-    if entry["expires"] < datetime.utcnow():
-        del _query_cache[query]
-        return None
+#     if entry["expires"] < datetime.utcnow():
+#         del _query_cache[query]
+#         return None
 
-    return entry["value"]
+#     return entry["value"]
 
 
 def search_skills(query: str, page: int = 1, size: int = 10) -> Dict:
