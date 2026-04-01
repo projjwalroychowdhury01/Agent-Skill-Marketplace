@@ -3,7 +3,7 @@ Structural validation - checks schema, types, and required fields.
 """
 
 from typing import Any, Dict, List
-from models import ErrorDetail
+from app.models import ErrorDetail
 
 
 def validate_required_fields(skill_data: Dict[str, Any]) -> List[ErrorDetail]:

@@ -4,7 +4,7 @@ Security validation - scans for dangerous patterns and compliance issues.
 
 from typing import Any, Dict, List
 import re
-from models import ErrorDetail, WarningDetail
+from app.models import ErrorDetail, WarningDetail
 
 
 DANGEROUS_PATTERNS = [

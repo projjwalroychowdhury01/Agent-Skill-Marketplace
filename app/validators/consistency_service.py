@@ -3,7 +3,7 @@ Consistency validation - tool usage, function/tool mismatch, determinism.
 """
 
 from typing import Any, Dict, List
-from models import ErrorDetail, WarningDetail
+from app.models import ErrorDetail, WarningDetail
 
 
 COMMON_TOOLS = {

@@ -23,28 +23,28 @@ SYNONYM_MAP = {
     "llm": "large language model",
 }
 
-CONTROLLED_TAGS = {
-    "data extraction",
-    "data transformation",
-    "data validation",
-    "text processing",
-    "image processing",
-    "api integration",
-    "database operations",
-    "authentication",
-    "content generation",
-    "classification",
-    "prediction",
-    "analysis",
-    "aggregation",
-    "filtering",
-    "sorting",
-    "mapping",
-    "encoding",
-    "decoding",
-    "parsing",
-    "formatting",
-}
+# CONTROLLED_TAGS = {
+#     "data extraction",
+#     "data transformation",
+#     "data validation",
+#     "text processing",
+#     "image processing",
+#     "api integration",
+#     "database operations",
+#     "authentication",
+#     "content generation",
+#     "classification",
+#     "prediction",
+#     "analysis",
+#     "aggregation",
+#     "filtering",
+#     "sorting",
+#     "mapping",
+#     "encoding",
+#     "decoding",
+#     "parsing",
+#     "formatting",
+# }
 
 
 def normalize_strings(skill_data: Dict[str, Any]) -> Dict[str, Any]:
@@ -161,22 +161,22 @@ def normalize_tools(skill_data: Dict[str, Any]) -> Dict[str, Any]:
     return normalized
 
 
-def suggest_tag_corrections(tags: List[str]) -> Dict[str, str]:
-    """Suggest corrections for uncontrolled tags."""
-    suggestions = {}
+# def suggest_tag_corrections(tags: List[str]) -> Dict[str, str]:
+#     """Suggest corrections for uncontrolled tags."""
+#     suggestions = {}
 
-    controlled_lower = {tag.lower(): tag for tag in CONTROLLED_TAGS}
+#     controlled_lower = {tag.lower(): tag for tag in CONTROLLED_TAGS}
 
-    for tag in tags:
-        tag_lower = tag.lower()
-        if tag_lower not in controlled_lower:
-            # Find closest match (simple substring match)
-            for controlled in CONTROLLED_TAGS:
-                if tag_lower in controlled.lower() or controlled.lower() in tag_lower:
-                    suggestions[tag] = controlled
-                    break
+#     for tag in tags:
+#         tag_lower = tag.lower()
+#         if tag_lower not in controlled_lower:
+#             # Find closest match (simple substring match)
+#             for controlled in CONTROLLED_TAGS:
+#                 if tag_lower in controlled.lower() or controlled.lower() in tag_lower:
+#                     suggestions[tag] = controlled
+#                     break
 
-    return suggestions
+#     return suggestions
 
 
 def run_normalization(skill_data: Dict[str, Any]) -> Dict[str, Any]:

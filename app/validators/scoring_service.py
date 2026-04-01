@@ -4,7 +4,7 @@ Quality scoring - calculates skill quality metrics.
 
 from typing import Any, Dict
 import re
-from models import ScoreBreakdown
+from app.models import ScoreBreakdown
 
 
 def score_description_quality(skill_data: Dict[str, Any]) -> int:

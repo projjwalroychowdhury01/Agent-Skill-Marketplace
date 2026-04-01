@@ -4,7 +4,7 @@ Semantic validation - description quality, name quality, schema logic.
 
 from typing import Any, Dict, List
 import re
-from models import ErrorDetail, WarningDetail
+from app.models import ErrorDetail, WarningDetail
 
 
 FORBIDDEN_PHRASES = [
